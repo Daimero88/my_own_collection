@@ -3,7 +3,7 @@
   hosts: localhost
   tasks:
   - name: Create file with context
-    my_own_module:
+    daimero88.yandex_cloud_elk.my_own_module:
       path: './daimero88_playbook.txt'
       content: "This file was created by ansible-playbook"
 
