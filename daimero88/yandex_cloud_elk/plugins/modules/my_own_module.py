@@ -18,11 +18,11 @@ version_added: "1.0.0"
 description: This is my longer description explaining my test module.
 
 options:
-    name:
+    path:
         description: This is the message to send to the test module.
         required: true
         type: str
-    new:
+    content:
         description:
             - Control to demo if the result of this module is changed or not.
             - Parameter description can be a list as well.
@@ -30,11 +30,11 @@ options:
         type: bool
 # Specify this value according to your collection
 # in format of namespace.collection.doc_fragment_name
-extends_documentation_fragment:
-    - my_namespace.my_collection.my_doc_fragment_name
+#extends_documentation_fragment:
+#    - my_namespace.my_collection.my_doc_fragment_name
 
 author:
-    - Your Name (@yourGitHubHandle)
+    - Sergey Silchin (@Daimero88)
 '''
 
 EXAMPLES = r'''
@@ -70,13 +70,13 @@ message:
 '''
 
 from ansible.module_utils.basic import AnsibleModule
-
+import os
 
 def run_module():
     # define available arguments/parameters a user can pass to the module
     module_args = dict(
-        name=dict(type='str', required=True),
-        new=dict(type='bool', required=False, default=False)
+        path=dict(type='str', required=True),
+        content=dict(type='str', required=False, default='Daimero88')
     )
 
     # seed the result dict in the object
@@ -86,8 +86,8 @@ def run_module():
     # for consumption, for example, in a subsequent task
     result = dict(
         changed=False,
-        original_message='',
-        message=''
+#        original_message='',
+#        message=''
     )
 
     # the AnsibleModule object will be our abstraction working with Ansible
@@ -96,7 +96,7 @@ def run_module():
     # supports check mode
     module = AnsibleModule(
         argument_spec=module_args,
-        supports_check_mode=True
+        supports_check_mode=False
     )
 
     # if the user is working with this module in only check mode we do not
@@ -107,19 +107,29 @@ def run_module():
 
     # manipulate or modify the state as needed (this is going to be the
     # part where your module will do what it needs to do)
-    result['original_message'] = module.params['name']
-    result['message'] = 'goodbye'
+#    result['original_message'] = module.params['name']
+#    result['message'] = 'goodbye'
 
     # use whatever logic you need to determine whether or not this module
     # made any modifications to your target
-    if module.params['new']:
-        result['changed'] = True
+#    if module.params['new']:
+#        result['changed'] = True
+
+    if not (os.path.exists(module.params['path']) and
+            os.path.isfile(module.params['path']) and
+            open(module.params['path'], 'r').read() == module.params['content']):
+        try:
+            with open(module.params['path'], 'w') as file:
+                file.write(module.params['content'])
+                result['changed'] = True
+        except Exception as exp:
+            module.fail_json(msg=f"Something gone wrong: {exp}", **result)
 
     # during the execution of the module, if there is an exception or a
     # conditional state that effectively causes a failure, run
     # AnsibleModule.fail_json() to pass in the message and the result
-    if module.params['name'] == 'fail me':
-        module.fail_json(msg='You requested this to fail', **result)
+    if module.params['path'] == 'fail me':
+        module.fail_json(msg='This is a fail', **result)
 
     # in the event of a successful module execution, you will want to
     # simple AnsibleModule.exit_json(), passing the key/value results

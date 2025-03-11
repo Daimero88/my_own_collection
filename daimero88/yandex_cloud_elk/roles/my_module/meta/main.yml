@@ -1,0 +1,17 @@
+#SPDX-License-Identifier: MIT-0
+galaxy_info:
+  role_name: my_module
+  namespace: daimero88
+  author: Sergey Silchin
+  description: role for module
+#  company: your company (optional)
+
+  license: MIT
+
+  min_ansible_version: "2.15"
+
+  galaxy_tags:
+    - module
+    - file
+
+dependencies: []
